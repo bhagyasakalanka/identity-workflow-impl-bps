@@ -162,6 +162,22 @@
                 <version>${pax.logging.api.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.xds.client.mgt</artifactId>
+                <version>${carbon.identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity.framework</groupId>
+                <artifactId>org.wso2.carbon.identity.xds.common</artifactId>
+                <version>${carbon.identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${com.google.code.gson.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -251,12 +267,12 @@
         <commons-io.wso2.version>2.4.0.wso2v1</commons-io.wso2.version>
         <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
 
-        <carbon.identity.framework.version>5.25.36</carbon.identity.framework.version>
+        <carbon.identity.framework.version>5.25.130</carbon.identity.framework.version>
         <identity.workflow.impl.bps.export.version>${project.version}</identity.workflow.impl.bps.export.version>
 
         <axiom.wso2.version>1.2.11-wso2v16</axiom.wso2.version>
 
-        <identity.framework.imp.pkg.version.range>[5.14.67, 6.0.0)</identity.framework.imp.pkg.version.range>
+        <identity.framework.imp.pkg.version.range>[5.14.67, 7.0.0)</identity.framework.imp.pkg.version.range>
         <carbon.base.imp.pkg.version.range>[1.0.0, 2.0.0)</carbon.base.imp.pkg.version.range>
         <carbon.kernel.package.import.version.range>[4.5.0, 5.0.0)</carbon.kernel.package.import.version.range>
         <carbon.identity.workflow.impl.bps.import.version.range>[5.3.0, 6.0.0)
@@ -284,6 +300,7 @@
 
         <!-- Pax Logging Version -->
         <pax.logging.api.version>1.10.1</pax.logging.api.version>
-    </properties>
+        <com.google.code.gson.version>2.9.0</com.google.code.gson.version>
+        </properties>
 
 </project>

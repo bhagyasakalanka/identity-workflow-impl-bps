@@ -75,6 +75,19 @@
             <groupId>org.wso2.carbon.commons</groupId>
             <artifactId>org.wso2.carbon.tenant.common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.xds.client.mgt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.xds.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -144,6 +157,8 @@
                             org.wso2.carbon.humantask.deployer; resolution:=optional,
                             org.wso2.carbon; version="${carbon.kernel.package.import.version.range}",
                             org.apache.axiom.om.util; version="${axiom.osgi.version.range}"
+                            org.wso2.carbon.identity.xds.client.mgt.*; version="${identity.framework.imp.pkg.version.range}",
+                            org.wso2.carbon.identity.xds.common.*; version="${identity.framework.imp.pkg.version.range}",
 
                         </Import-Package>
                         <Export-Package>

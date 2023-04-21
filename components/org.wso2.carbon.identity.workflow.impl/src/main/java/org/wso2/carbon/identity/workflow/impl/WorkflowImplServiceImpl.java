@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.workflow.impl;
 
 
+import com.google.gson.Gson;
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
@@ -42,10 +43,12 @@ import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalAccessFault;
 import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalArgumentFault;
 import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalOperationFault;
 import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalStateFault;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplServiceListener;
+import org.wso2.carbon.identity.workflow.impl.model.WorkflowXDSWrapper;
 import org.wso2.carbon.identity.workflow.impl.util.BPELPackageManagementServiceClient;
 import org.wso2.carbon.identity.workflow.impl.util.HumanTaskClientAPIAdminClient;
 import org.wso2.carbon.identity.workflow.impl.util.ProcessManagementServiceClient;
@@ -57,6 +60,9 @@ import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
+import org.wso2.carbon.identity.xds.client.mgt.util.XDSUtils;
+import org.wso2.carbon.identity.xds.common.constant.XDSConstants;
+import org.wso2.carbon.identity.xds.common.constant.XDSOperationType;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -91,6 +97,14 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             if (workflowListener.isEnable()) {
                 workflowListener.doPostAddBPSProfile(bpsProfileDTO, tenantId);
             }
+        }
+
+        if (isControlPlane()) {
+            WorkflowXDSWrapper workflowXDSWrapper = new WorkflowXDSWrapper.WorkflowXDSWrapperBuilder()
+                    .setBpsProfile(bpsProfileDTO)
+                    .build();
+            publishData(workflowXDSWrapper, XDSConstants.EventType.WORKFLOW,
+                    WorkflowXDSOperationType.ADD_BPS_PROFILE);
         }
 
     }
@@ -133,6 +147,14 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             }
         }
 
+        if (isControlPlane()) {
+            WorkflowXDSWrapper workflowXDSWrapper = new WorkflowXDSWrapper.WorkflowXDSWrapperBuilder()
+                    .setProfileName(profileName)
+                    .build();
+            publishData(workflowXDSWrapper, XDSConstants.EventType.WORKFLOW,
+                    WorkflowXDSOperationType.REMOVE_BPS_PROFILE);
+        }
+
     }
 
     /**
@@ -156,6 +178,13 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             if (workflowListener.isEnable()) {
                 workflowListener.doPostRemoveBPSProfiles(tenantId);
             }
+        }
+
+        if (isControlPlane()) {
+            WorkflowXDSWrapper workflowXDSWrapper = new WorkflowXDSWrapper.WorkflowXDSWrapperBuilder()
+                    .build();
+            publishData(workflowXDSWrapper, XDSConstants.EventType.WORKFLOW,
+                    WorkflowXDSOperationType.REMOVE_BPS_PROFILES);
         }
     }
 
@@ -197,6 +226,14 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             if (workflowListener.isEnable()) {
                 workflowListener.doPostUpdateBPSProfile(bpsProfileDTO, tenantId);
             }
+        }
+
+        if (isControlPlane()) {
+            WorkflowXDSWrapper workflowXDSWrapper = new WorkflowXDSWrapper.WorkflowXDSWrapperBuilder()
+                    .setBpsProfile(bpsProfileDTO)
+                    .build();
+            publishData(workflowXDSWrapper, XDSConstants.EventType.WORKFLOW,
+                    WorkflowXDSOperationType.UPDATE_BPS_PROFILE);
         }
     }
 
@@ -265,11 +302,21 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                         .getProfileName());
             }
         }
+
+        if (isControlPlane()) {
+            WorkflowXDSWrapper workflowXDSWrapper = new WorkflowXDSWrapper.WorkflowXDSWrapperBuilder()
+                    .setWorkflowRequest(workflowRequest)
+                    .build();
+            publishData(workflowXDSWrapper, XDSConstants.EventType.WORKFLOW,
+                    WorkflowXDSOperationType.DELETE_HUMAN_TASK);
+        }
+
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
             if (workflowListener.isEnable()) {
                 workflowListener.doPostDeleteHumanTask(workflowRequest);
             }
         }
+
     }
 
     /**
@@ -386,6 +433,15 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             throw new WorkflowImplException("Error while deleting the BPS Artifacts of the Workflow "
                     + workflow.getWorkflowName(), e);
         }
+
+        if (isControlPlane()) {
+            WorkflowXDSWrapper workflowXDSWrapper = new WorkflowXDSWrapper.WorkflowXDSWrapperBuilder()
+                    .setWorkflow(workflow)
+                    .build();
+            publishData(workflowXDSWrapper, XDSConstants.EventType.WORKFLOW,
+                    WorkflowXDSOperationType.REMOVE_BPS_PACKAGE);
+        }
+
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
             if (workflowListener.isEnable()) {
                 workflowListener.doPostRemoveBPSPackage(workflow);
@@ -437,6 +493,26 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             }
         }
 
+    }
+
+    private String buildJson(WorkflowXDSWrapper workflowXDSWrapper) {
+
+        Gson gson = new Gson();
+        return gson.toJson(workflowXDSWrapper);
+    }
+
+    private boolean isControlPlane() {
+
+        return Boolean.parseBoolean(IdentityUtil.getProperty("Server.ControlPlane"));
+    }
+
+    private void publishData(WorkflowXDSWrapper workflowXDSWrapper, XDSConstants.EventType eventType,
+                             XDSOperationType XDSOperationType) {
+
+        String json = buildJson(workflowXDSWrapper);
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        String username = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        XDSUtils.publishData(tenantDomain, username, json, eventType, XDSOperationType);
     }
 
 }
