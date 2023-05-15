@@ -25,6 +25,7 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplServiceListener;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
+import org.wso2.carbon.identity.xds.client.mgt.XDSClientService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -39,6 +40,7 @@ public class WorkflowImplServiceDataHolder {
     private RealmService realmService;
     private ConfigurationContextService configurationContextService;
     private BundleContext bundleContext;
+    private XDSClientService xdsClientService;
     private List<WorkflowImplServiceListener> workflowListenerList = new ArrayList<>();
 
     private ServerConfigurationService serverConfigurationService;
@@ -115,6 +117,14 @@ public class WorkflowImplServiceDataHolder {
 
     public List<WorkflowImplServiceListener> getWorkflowListenerList() {
         return workflowListenerList;
+    }
+
+    public void setXdsClientService(XDSClientService xdsClientService) {
+        this.xdsClientService = xdsClientService;
+    }
+
+    public XDSClientService getXdsClientService() {
+        return xdsClientService;
     }
 
 }

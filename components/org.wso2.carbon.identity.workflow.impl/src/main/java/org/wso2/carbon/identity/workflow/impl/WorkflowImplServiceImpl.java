@@ -60,7 +60,6 @@ import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
-import org.wso2.carbon.identity.xds.client.mgt.util.XDSUtils;
 import org.wso2.carbon.identity.xds.common.constant.XDSConstants;
 import org.wso2.carbon.identity.xds.common.constant.XDSOperationType;
 
@@ -512,7 +511,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         String json = buildJson(workflowXDSWrapper);
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String username = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        XDSUtils.publishData(tenantDomain, username, json, eventType, XDSOperationType);
+        WorkflowImplServiceDataHolder.getInstance().getXdsClientService()
+                .publishData(tenantDomain, username, json, eventType, XDSOperationType);
     }
 
 }

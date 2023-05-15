@@ -49,6 +49,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
+import org.wso2.carbon.identity.xds.client.mgt.XDSClientService;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -266,6 +267,22 @@ public class WorkflowImplServiceComponent {
         }
         serverUrl.append("/services");
         return serverUrl.toString();
+    }
+
+    @Reference(
+            name = "xds.client.service",
+            service = org.wso2.carbon.identity.xds.client.mgt.XDSClientService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetXDSClientService")
+    protected void setXDSClientService(XDSClientService xdsClientService) {
+
+        WorkflowImplServiceDataHolder.getInstance().setXdsClientService(xdsClientService);
+    }
+
+    protected void unsetXDSClientService(XDSClientService xdsClientService) {
+
+        WorkflowImplServiceDataHolder.getInstance().setXdsClientService(null);
     }
 }
 
